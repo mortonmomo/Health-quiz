@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>肌少症風險自我檢測</title>
+  <style>
+    :root {
+      --bg: #f6f8f5;
+      --panel: #fff;
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9e2dc;
+      --brand: #28745a;
+      --brand-dark: #1f5d48;
+      --brand-soft: #e5f4ed;
+      --warn: #a55418;
+      --danger: #b42318;
+      --shadow: 0 14px 40px rgba(30, 56, 43, 0.10);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(40, 116, 90, 0.14), transparent 28rem),
+        linear-gradient(180deg, #f8fbf7 0%, var(--bg) 100%);
+    }
+
+    a { color: var(--brand-dark); }
+
+    .page {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      padding: 8px 0 24px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+    }
+
+    h2, h3 { margin: 0; }
+
+    .lead {
+      max-width: 820px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .summary-chip {
+      display: grid;
+      gap: 5px;
+      min-width: 190px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-chip strong { font-size: 24px; }
+    .summary-chip span { color: var(--muted); font-size: 13px; }
+
+    .nav-link {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .intro,
+    .section,
+    #result {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      padding: 20px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .section {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .section-title {
+      display: grid;
+      gap: 6px;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    label.input-field {
+      display: grid;
+      gap: 8px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    fieldset.question {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfb;
+    }
+
+    fieldset.missing,
+    .missing-control {
+      border-color: #d98b45 !important;
+      box-shadow: 0 0 0 3px rgba(217, 139, 69, 0.14);
+    }
+
+    .q-title {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .q-no {
+      min-width: 34px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      min-height: 48px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .option:has(input:checked) {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      box-shadow: inset 0 0 0 1px var(--brand);
+    }
+
+    input[type="radio"] {
+      accent-color: var(--brand);
+      margin-top: 4px;
+    }
+
+    .actions,
+    .download-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .primary,
+    .secondary {
+      padding: 12px 18px;
+      font-weight: 700;
+    }
+
+    .primary {
+      color: #fff;
+      background: var(--brand);
+    }
+
+    .secondary {
+      color: var(--brand-dark);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .notice {
+      display: none;
+      margin: 0;
+      color: var(--warn);
+      font-weight: 700;
+    }
+
+    .notice.show { display: block; }
+
+    #result {
+      display: none;
+      margin-top: 24px;
+      padding: 24px;
+    }
+
+    #result.show { display: block; }
+
+    .result-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfb;
+    }
+
+    .score {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--brand-dark);
+    }
+
+    .level {
+      display: inline-flex;
+      width: fit-content;
+      padding: 4px 9px;
+      border-radius: 99px;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .level.warn { background: #fff1dd; color: var(--warn); }
+    .level.danger { background: #fee4e2; color: var(--danger); }
+
+    .result-card p,
+    .disclaimer,
+    .sources,
+    .prevention {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .prevention,
+    .disclaimer,
+    .sources {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 10px;
+      background: #f8faf8;
+      font-size: 14px;
+    }
+
+    .prevention ul,
+    .sources ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .danger-box {
+      margin: 0 0 14px;
+      padding: 16px;
+      border-radius: 10px;
+      background: #fee4e2;
+      color: var(--danger);
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(100% - 22px, 1080px); padding-top: 18px; }
+      header { grid-template-columns: 1fr; }
+      .actions button, .download-actions button { flex: 1; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      header .lead, .summary-chip, form, .download-actions, .nav-link { display: none !important; }
+      .page { width: 100%; padding: 0; }
+      #result { display: block !important; box-shadow: none; border: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="nav-link" href="./">← 回健康自我檢測首頁</a>
+
+    <header>
+      <div>
+        <h1>肌少症風險自我檢測</h1>
+        <p class="lead">獨立頁面版，整合小腿圍、SARC-F 肌少症自我檢測問卷與握力判斷。結果僅作為健康教育與自我檢視參考，不取代醫療診斷。</p>
+      </div>
+      <div class="summary-chip" aria-label="檢測項目">
+        <strong>3 類檢測</strong>
+        <span>小腿圍、SARC-F、握力</span>
+      </div>
+    </header>
+
+    <div class="intro">請依自己的實際狀況填寫。若任一項檢測結果達到警訊標準，代表可能有肌少症風險，建議尋求醫師、營養師、物理治療師或相關專業人員進一步評估。</div>
+
+    <form id="sarcopeniaForm" novalidate>
+      <p class="notice" id="notice">還有欄位或題目沒填，已幫你標出來了。</p>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>一、基本量測</h2>
+          <p>請輸入性別、小腿圍與握力。小腿圍與握力是肌少症風險的常用初步參考指標。</p>
+        </div>
+        <div class="field-grid">
+          <label class="input-field" for="sex">性別
+            <select id="sex" name="sex" required>
+              <option value="">請選擇</option>
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+            </select>
+          </label>
+          <label class="input-field" for="calf">小腿圍，公分
+            <input id="calf" name="calf" type="number" inputmode="decimal" min="10" max="80" step="0.1" placeholder="例如：33.5" required>
+          </label>
+          <label class="input-field" for="grip">握力，公斤
+            <input id="grip" name="grip" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="例如：27.0" required>
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>二、SARC-F 肌少症自我檢測問卷</h2>
+          <p>以下 5 題各為 0–2 分，總分 0–10 分。總分 ≥4 分，即可能有肌少症風險。</p>
+        </div>
+        <div id="questions"></div>
+      </section>
+
+      <div class="actions">
+        <button class="secondary" type="button" id="resetBtn">清除重填</button>
+        <button class="primary" type="submit">送出看結果</button>
+      </div>
+    </form>
+
+    <section id="result" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        no: 1,
+        title: "肌力",
+        text: "對您來說，拿起或搬動 4.5 公斤重的物品會感到困難嗎？",
+        options: [["沒有困難", 0], ["一些困難", 1], ["很困難", 2]]
+      },
+      {
+        no: 2,
+        title: "步行輔助",
+        text: "您走過一個房間距離會感到困難嗎？",
+        options: [["沒有困難", 0], ["一些困難", 1], ["很困難", 2]]
+      },
+      {
+        no: 3,
+        title: "從椅子上起身",
+        text: "您從椅子或床上起身會感到困難嗎？",
+        options: [["沒有困難", 0], ["一些困難", 1], ["很困難", 2]]
+      },
+      {
+        no: 4,
+        title: "上臺階",
+        text: "您走上 10 個臺階會感到困難嗎？",
+        options: [["沒有困難", 0], ["一些困難", 1], ["很困難", 2]]
+      },
+      {
+        no: 5,
+        title: "跌倒",
+        text: "過去 1 年中，您跌倒過幾次？",
+        options: [["沒有跌倒過", 0], ["跌倒 1–3 次", 1], ["跌倒 ≥4 次", 2]]
+      }
+    ];
+
+    const sources = [
+      ["臺北市社區營養推廣中心：肌少症風險自我檢測與預防肌少症秘訣", "PDF 衛教單張"],
+      ["SARC-F 肌少症自我檢測：總分 ≥4 分可能有肌少症風險", "衛教單張標示"],
+      ["小腿圍與握力警訊：男性小腿圍 <34 公分、女性 <33 公分；男性握力 <28 公斤、女性 <18 公斤", "衛教單張標示"]
+    ];
+
+    const form = document.querySelector("#sarcopeniaForm");
+    const questionRoot = document.querySelector("#questions");
+    const result = document.querySelector("#result");
+    const notice = document.querySelector("#notice");
+
+    questions.forEach(question => {
+      const field = document.createElement("fieldset");
+      field.className = "question";
+      field.dataset.name = `q${question.no}`;
+      field.innerHTML = `
+        <legend class="q-title"><span class="q-no">${question.no}</span><span>${escapeHtml(question.title)}｜${escapeHtml(question.text)}</span></legend>
+        <div class="options">
+          ${question.options.map(([label, score], index) => `
+            <label class="option">
+              <input type="radio" name="q${question.no}" value="${index}" data-score="${score}" required>
+              <span>${escapeHtml(label)}（${score} 分）</span>
+            </label>
+          `).join("")}
+        </div>
+      `;
+      questionRoot.append(field);
+    });
+
+    form.addEventListener("submit", handleSubmit);
+    form.addEventListener("change", clearMissingState);
+    form.addEventListener("input", clearMissingState);
+    document.querySelector("#resetBtn").addEventListener("click", () => {
+      form.reset();
+      result.classList.remove("show");
+      result.innerHTML = "";
+      notice.classList.remove("show");
+      clearAllMissing();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      clearAllMissing();
+
+      const missing = [];
+      ["sex", "calf", "grip"].forEach(id => {
+        const el = document.querySelector(`#${id}`);
+        if (!el.value) {
+          el.classList.add("missing-control");
+          missing.push(el);
+        }
+      });
+
+      questions.forEach(question => {
+        const field = document.querySelector(`.question[data-name="q${question.no}"]`);
+        const selected = form.querySelector(`input[name="q${question.no}"]:checked`);
+        if (!selected) {
+          field.classList.add("missing");
+          missing.push(field);
+        }
+      });
+
+      if (missing.length) {
+        notice.classList.add("show");
+        missing[0].scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      notice.classList.remove("show");
+      renderResult(readAnswers());
+      result.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function readAnswers() {
+      const sex = form.sex.value;
+      const calf = Number(form.calf.value);
+      const grip = Number(form.grip.value);
+      const sarcAnswers = questions.map(question => {
+        const selected = form.querySelector(`input[name="q${question.no}"]:checked`);
+        const option = question.options[Number(selected.value)];
+        return { ...question, answer: option[0], score: option[1] };
+      });
+      const sarcScore = sarcAnswers.reduce((sum, item) => sum + item.score, 0);
+      const calfCutoff = sex === "male" ? 34 : 33;
+      const gripCutoff = sex === "male" ? 28 : 18;
+      const calfRisk = calf < calfCutoff;
+      const gripRisk = grip < gripCutoff;
+      const sarcRisk = sarcScore >= 4;
+      const overallRisk = calfRisk || gripRisk || sarcRisk;
+      return { sex, calf, grip, calfCutoff, gripCutoff, calfRisk, gripRisk, sarcScore, sarcRisk, overallRisk, sarcAnswers };
+    }
+
+    function renderResult(data) {
+      const timestamp = new Date().toLocaleString("zh-TW", { hour12: false });
+      result.className = "show";
+      result.innerHTML = `
+        <div id="resultCapture">
+          <div class="result-head">
+            <div>
+              <h2>檢測結果</h2>
+              <div class="timestamp">完成時間：${escapeHtml(timestamp)}</div>
+            </div>
+            <div class="timestamp">本結果為健康教育自我檢視，不取代醫療診斷。</div>
+          </div>
+          ${data.overallRisk ? `<div class="danger-box">可能有肌少症風險：本次檢測至少一項達到警訊標準，建議尋求專業人員進一步評估。</div>` : ""}
+          <div class="result-grid">
+            <article class="result-card">
+              <h3>SARC-F 問卷總分</h3>
+              <div class="score">${data.sarcScore}<small> / 10</small></div>
+              <span class="level ${data.sarcRisk ? "danger" : ""}">${data.sarcRisk ? "可能有風險" : "未達警訊"}</span>
+              <p>${data.sarcRisk ? "總分 ≥4 分，可能有肌少症風險。" : "總分未達 4 分，仍建議持續維持營養與運動。"}</p>
+            </article>
+            <article class="result-card">
+              <h3>小腿圍</h3>
+              <div class="score">${formatNumber(data.calf)}<small> 公分</small></div>
+              <span class="level ${data.calfRisk ? "danger" : ""}">${data.calfRisk ? "低於建議切點" : "未達警訊"}</span>
+              <p>${data.sex === "male" ? "男性" : "女性"}小腿圍警訊切點：小於 ${data.calfCutoff} 公分。</p>
+            </article>
+            <article class="result-card">
+              <h3>握力</h3>
+              <div class="score">${formatNumber(data.grip)}<small> 公斤</small></div>
+              <span class="level ${data.gripRisk ? "danger" : ""}">${data.gripRisk ? "低於建議切點" : "未達警訊"}</span>
+              <p>${data.sex === "male" ? "男性" : "女性"}握力警訊切點：小於 ${data.gripCutoff} 公斤。</p>
+            </article>
+            <article class="result-card">
+              <h3>整體判讀</h3>
+              <div class="score">${data.overallRisk ? "需留意" : "較穩定"}</div>
+              <span class="level ${data.overallRisk ? "danger" : ""}">${data.overallRisk ? "建議進一步評估" : "持續自我管理"}</span>
+              <p>${data.overallRisk ? "任一項異常都可能代表肌少症風險，請不要只看單一分數。" : "本次檢測未出現明顯警訊，但仍應定期追蹤肌力、活動量與營養狀態。"}</p>
+            </article>
+          </div>
+          <div class="prevention">
+            <strong>預防肌少症建議</strong>
+            <ul>
+              <li>吃足夠熱量並維持適當體重，避免熱量不足造成肌肉流失。</li>
+              <li>三餐平均攝取優質蛋白質，每餐豆魚蛋肉類至少一掌心。</li>
+              <li>適度曬太陽，並攝取富含維生素 D 的食物，例如鮭魚、鯖魚、沙丁魚、牛奶、起司、雞蛋、菇類、豆腐或營養強化穀類。</li>
+              <li>每週累積 150–300 分鐘以上中等費力身體活動，並搭配肌力訓練。</li>
+              <li>有氧運動可選擇健走、游泳；肌力訓練可選擇彈力帶、深蹲、舉啞鈴等。</li>
+            </ul>
+          </div>
+          <div class="disclaimer">注意：本頁為健康教育用途，不能作為醫事診斷證明。若有跌倒、無力、體重下降、走路變慢，或檢測結果出現警訊，建議諮詢醫師、營養師、物理治療師或相關專業人員。</div>
+          <div class="sources">
+            <strong>資料依據</strong>
+            <ul>
+              ${sources.map(([label, detail]) => `<li>${escapeHtml(label)}：${escapeHtml(detail)}</li>`).join("")}
+            </ul>
+          </div>
+        </div>
+        <div class="download-actions">
+          <button class="secondary" type="button" id="printBtn">列印／另存 PDF</button>
+          <button class="secondary" type="button" id="copyBtn">複製結果文字</button>
+        </div>
+      `;
+
+      document.querySelector("#printBtn").addEventListener("click", () => window.print());
+      document.querySelector("#copyBtn").addEventListener("click", async () => {
+        await navigator.clipboard.writeText(buildPlainText(data, timestamp));
+        document.querySelector("#copyBtn").textContent = "已複製";
+        setTimeout(() => document.querySelector("#copyBtn").textContent = "複製結果文字", 1400);
+      });
+    }
+
+    function buildPlainText(data, timestamp) {
+      const sexLabel = data.sex === "male" ? "男性" : "女性";
+      const lines = [
+        "肌少症風險自我檢測結果",
+        `完成時間：${timestamp}`,
+        `性別：${sexLabel}`,
+        `SARC-F：${data.sarcScore}/10，${data.sarcRisk ? "可能有風險" : "未達警訊"}`,
+        `小腿圍：${formatNumber(data.calf)} 公分，切點：${data.calfCutoff} 公分，${data.calfRisk ? "低於建議切點" : "未達警訊"}`,
+        `握力：${formatNumber(data.grip)} 公斤，切點：${data.gripCutoff} 公斤，${data.gripRisk ? "低於建議切點" : "未達警訊"}`,
+        `整體判讀：${data.overallRisk ? "可能有肌少症風險，建議進一步評估" : "本次未出現明顯警訊，建議持續自我管理"}`,
+        "本結果為健康教育自我檢視，不取代醫療診斷。"
+      ];
+      return lines.join("\n");
+    }
+
+    function clearMissingState(event) {
+      if (!event || !event.target) return;
+      event.target.classList.remove("missing-control");
+      const fieldset = event.target.closest(".question");
+      if (fieldset) fieldset.classList.remove("missing");
+    }
+
+    function clearAllMissing() {
+      document.querySelectorAll(".missing-control").forEach(el => el.classList.remove("missing-control"));
+      document.querySelectorAll(".question.missing").forEach(el => el.classList.remove("missing"));
+    }
+
+    function formatNumber(value) {
+      return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
